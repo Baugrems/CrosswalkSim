@@ -11,5 +11,7 @@ int main() {
     Welford W = Welford();
     W.v += 1;
     cout << W.v << endl;
+    W.v += 12;
+    cout << W.v << endl;
     return 0;
 }

@@ -11,7 +11,6 @@ public:
     int n = 0;
     double avg = 0;
     double v = 0;
-
     void clear();
     void step(double x);
 };

@@ -3,7 +3,7 @@ project(CrosswalkSim)
 
 set(CMAKE_CXX_STANDARD 14)
 
-include_directories(cmake-build-debug)
+include_directories(.)
 
 add_executable(CrosswalkSim
         Simulation.cpp)
