@@ -13,6 +13,7 @@ public:
     double v = 0;
 
     void clear();
+    void step(double x);
 };
 
 
