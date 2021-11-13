@@ -8,6 +8,6 @@
 class RandomFunctions{
 public:
     double Exponential(double mu);
-    double Uniform(double a, double b)
+    double Uniform(double a, double b);
 };
 #endif //CROSSWALKSIM_RANDOMFUNCTIONS_H
