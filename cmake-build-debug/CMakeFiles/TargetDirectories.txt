@@ -1,0 +1,3 @@
+C:/Users/patri/Desktop/programming stuff/csci423/CrosswalkSim/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+C:/Users/patri/Desktop/programming stuff/csci423/CrosswalkSim/cmake-build-debug/CMakeFiles/CrosswalkSim.dir
+C:/Users/patri/Desktop/programming stuff/csci423/CrosswalkSim/cmake-build-debug/CMakeFiles/edit_cache.dir
