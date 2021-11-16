@@ -10,10 +10,6 @@ using namespace std;
 
 int main() {
     priority_queue<Event> EventList;
-    Welford W = Welford();
-    W.v += 1;
-    cout << W.v << endl;
-    W.v += 12;
-    cout << W.v << endl;
+
     return 0;
 }
