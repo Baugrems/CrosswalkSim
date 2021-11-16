@@ -19,7 +19,8 @@ double Automobile::calculate_auto_delay() {
     int yellow_timer = 8;
     int distToCrosswalk = 46;
     double delay = 0;
-    if (this->velocity*yellow_timer >= distToCrosswalk) {
+    if (this->velocity*yellow_timer >= distToCrosswalk) { // TODO this is wrong.
+        // Add start time for the car so we can add that to yellow_timer as well
         delay = this->velocity / this->time;
     } else {
         //do other stuff to calc how long the car is at the crosswalk waiting.
