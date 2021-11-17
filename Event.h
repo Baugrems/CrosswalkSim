@@ -10,9 +10,12 @@ public:
     enum class eventType {AutoArrival, PedArrival, PedAtButton, PedImpatient, GreenExpires, YellowExpires, RedExpires, AutoExit, PedExit};
     double activationTime;
     eventType type;
+    int id;
+    Event(eventType, double);
+    Event(eventType, double, int);
     bool operator <(const Event & event) const
     {
-        return activationTime < event.activationTime;
+        return activationTime > event.activationTime;
     }
 };
 
