@@ -5,7 +5,7 @@
 #include "Welford.h"
 #include <math.h>
 
-void Welford::clear() {
+void Welford::clearAll() {
     this->n = 0;
     this->avg = 0;
     this->v = 0;
@@ -13,6 +13,6 @@ void Welford::clear() {
 
 void Welford::step(double x) {
     n++;
-    avg += (1/n) * (x - avg);
-    v += (n-1)/n * pow(x - avg, 2);
+    avg += (1.0/n) * (x - avg);
+    v += (n-1.0)/n * pow(x - avg, 2);
 }

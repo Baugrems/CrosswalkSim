@@ -13,6 +13,5 @@ public:
     double time;
     const double ACCELERATION = 10.0;
     const int LENGTH = 9;
-    double calculate_auto_delay();
 };
 #endif //CROSSWALKSIM_AUTOMOBILE_H
