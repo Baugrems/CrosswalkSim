@@ -12,11 +12,11 @@ class TrafficSignal{
     public:
     enum class Light {GREEN, YELLOW, RED};
     enum class Signal {WALK, NO_WALK};
-    std::queue<Pedestrian> PedestriansAtButton;
+    std::vector<Pedestrian> PedestriansAtButton;
     Light stopLightColor;
     Signal pedestrianSignal;
     TrafficSignal();
-    std::vector<Event> sendPedestrians(double t);
+    std::vector<Event> sendPedestrians(double t, double redEnds);
     void ChangeLight();
     void ChangeCrossSignal();
     int pedestriansSent;

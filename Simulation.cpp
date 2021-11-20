@@ -19,7 +19,7 @@ string getEnum(Event::eventType);
 
 Pedestrian createPedestrian(FileController);
 void scheduleAtButton(Pedestrian);
-bool pedestrianAtButton(bool, int);
+bool pedestrianAtButton(bool, bool, int);
 void processNewEvents(std::vector<Event>);
 
 priority_queue<Event> EventList;
@@ -31,53 +31,59 @@ double t = 0;
 double blockLength = 330;
 double streetLength = 46;
 bool buttonIsPressed = false;
+double nextRedExpiration = 0;
 RandomFunctions random = RandomFunctions();
 TrafficSignal trafficSignal = TrafficSignal();
 double averageDelayPedestrian = 0;
 int main() {
 
 
-    const int N = 9000;
-
+    const int N = 300;
+    srand(8);
 
     FileController UniformFiles("", "", "");
     createPedestrian(UniformFiles);
     Event firstSignalEvent = Event(Event::eventType::GreenExpires, t+trafficSignal.greenTime);
     EventList.push(firstSignalEvent);
+
     while (numExit != Pedestrian::allPedestrians.size() || Pedestrian::allPedestrians.size() < N){
         Event e = EventList.top();
         EventList.pop();
         t = e.activationTime;
-        //std::cout << getEnum(e.type) << " " << t << " " << EventList.size() << std::endl;
-
+        if((getEnum(e.type) == "PedAtButton")) std::cout << (getEnum(e.type) == "PedAtButton") << " " << t << " " << EventList.size() << std::endl;
         if (e.type == Event::eventType::PedArrival){
             if (numPeds < N) createPedestrian(UniformFiles);
         }
         else if (e.type == Event::eventType::PedAtButton){
             //calculates whether or not they will press the button
-            if (pedestrianAtButton(false, e.id)){
+            if (pedestrianAtButton(false, false, e.id)){
                 buttonIsPressed = true;
             }
-            trafficSignal.PedestriansAtButton.push(Pedestrian::getPedestrianByID(e.id));
-            //Sends any pedestrians that can cross
-            if (buttonIsPressed && trafficSignal.greenExpired)
-            processNewEvents(trafficSignal.sendPedestrians(t));
+            trafficSignal.PedestriansAtButton.push_back(Pedestrian::getPedestrianByID(e.id));
         }
         else if (e.type == Event::eventType::YellowExpires){
             trafficSignal.ChangeLight();
             trafficSignal.ChangeCrossSignal();
+            nextRedExpiration = t+trafficSignal.redTime;
             Event greenLight = Event(Event::eventType::RedExpires, t+trafficSignal.redTime);
             EventList.push(greenLight);
             //Sends any pedestrians that can cross
-            processNewEvents(trafficSignal.sendPedestrians(t));
+            std::cout << t << " " << trafficSignal.PedestriansAtButton.size() << " YELLOW EXPIRED\n";
+            processNewEvents(trafficSignal.sendPedestrians(t, nextRedExpiration));
         }
         else if (e.type == Event::eventType::RedExpires){
+            std::cout << t << " " << trafficSignal.PedestriansAtButton.size() << " RED EXPIRED\n";
+
+            buttonIsPressed = false;
+            pedestrianAtButton(false, true, -1);
             trafficSignal.ChangeLight();
             trafficSignal.ChangeCrossSignal();
             Event greenExpiration = Event(Event::eventType::GreenExpires, t+trafficSignal.greenTime);
             EventList.push(greenExpiration);
         }
         else if (e.type == Event::eventType::GreenExpires){
+            std::cout << t << " " << trafficSignal.PedestriansAtButton.size() << " GREEN EXPIRED\n";
+
             trafficSignal.greenExpired = true;
             if (buttonIsPressed) {
                 trafficSignal.ChangeLight();
@@ -90,7 +96,7 @@ int main() {
                 continue;
             }
             else{
-                pedestrianAtButton(true, e.id);
+                pedestrianAtButton(true, false, e.id);
             }
         }
         else if (e.type == Event::eventType::PedExit){
@@ -121,11 +127,17 @@ void scheduleAtButton(Pedestrian ped){
     EventList.push(pedAtButton);
 }
 
-bool pedestrianAtButton(bool impatientPress, int id){
+bool pedestrianAtButton(bool impatientPress, bool redExpire, int id){
     bool previousStateOfButton = buttonIsPressed;
     if (impatientPress){
         buttonIsPressed = true;
-        return buttonIsPressed;
+    }
+    else if(redExpire){
+        for (int i = 0; i < PedsAtButton.size(); ++i) {
+            if (random.Uniform(0, 16) < 15){
+                buttonIsPressed = true;
+            }
+        }
     }
     else{
         Event impatient = Event(Event::eventType::PedImpatient, t+60, id);
