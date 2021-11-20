@@ -40,37 +40,18 @@ TrafficSignal::TrafficSignal() {
 
 std::vector<Event> TrafficSignal::sendPedestrians(double t, double redEnds) {
     std::vector<Event> pedExits;
-    bool noPedLeft = false;
-//    for (int i = 0; i < PedestriansAtButton.size(); ++i) {
-//        std::cout << PedestriansAtButton.at(i).id << " Makes it across at: " << t + streetLength / PedestriansAtButton.at(i).velocity << " Red Ends at: " << redEnds << std::endl;
-//    }
-    while (pedestriansSent < 20 && !PedestriansAtButton.empty() && !noPedLeft){
-        if (t + streetLength / PedestriansAtButton.front().velocity < redEnds){
-            Event pedExit = Event(Event::eventType::PedExit, t + streetLength / PedestriansAtButton.front().velocity, PedestriansAtButton.front().id);
-            PedestriansAtButton.erase(PedestriansAtButton.begin());
+    for (int i = 0; i < PedestriansAtButton.size() ; ++i) {
+        if ( t + (streetLength / PedestriansAtButton.at(i).velocity) < redEnds ){
+            Event pedExit = Event(Event::eventType::PedExit, t + (streetLength / PedestriansAtButton.at(i).velocity), PedestriansAtButton.at(i).id);
+            PedestriansAtButton.erase(PedestriansAtButton.begin() + i);
             pedExits.push_back(pedExit);
             pedestriansSent+=1;
-            //std::cout << "FIRST IN LINE: " << pedExit.id << " AT TIME: " << t << " FINISH CROSS AT: " << t + streetLength / PedestriansAtButton.front().velocity << " RED LIGHT ENDS AT: " << redEnds << std::endl;
+            i--;
         }
-        else{
-            //std::cout << "CUTTING PERMITTED\n";
-            for (int i = 0; i < PedestriansAtButton.size() ; ++i) {
-                if (t + streetLength / PedestriansAtButton.at(i).velocity < redEnds){
-                    Event pedExit = Event(Event::eventType::PedExit, t + streetLength / PedestriansAtButton.at(i).velocity, PedestriansAtButton.at(i).id);
-                    PedestriansAtButton.erase(PedestriansAtButton.begin() + i);
-                    pedExits.push_back(pedExit);
-                    pedestriansSent+=1;
-                    //std::cout << "CUT IN LINE: " << pedExit.id << " AT TIME: " << t << " FINISH CROSS AT: " << t + streetLength / PedestriansAtButton.front().velocity << " RED LIGHT ENDS AT: " << redEnds << std::endl;
-                    break;
-                }
-                if (i==PedestriansAtButton.size()-1)noPedLeft = true;
-            }
-
+        if (pedestriansSent == 20){
+            break;
         }
     }
-//    for (int i = 0; i < PedestriansAtButton.size(); ++i) {
-//        std::cout << PedestriansAtButton.at(i).id << std::endl;
-//    }
     return pedExits;
 }
 

@@ -38,29 +38,34 @@ double averageDelayPedestrian = 0;
 int main() {
 
 
-    const int N = 300;
-    srand(8);
+    const int N = 350;
+    srand(6);
 
     FileController UniformFiles("", "", "");
     createPedestrian(UniformFiles);
     Event firstSignalEvent = Event(Event::eventType::GreenExpires, t+trafficSignal.greenTime);
     EventList.push(firstSignalEvent);
 
-    while (numExit != Pedestrian::allPedestrians.size() || Pedestrian::allPedestrians.size() < N){
+    //while (numExit != Pedestrian::allPedestrians.size() || Pedestrian::allPedestrians.size() < N){
+    while (EventList.size() > 0){
         Event e = EventList.top();
         EventList.pop();
         t = e.activationTime;
-        if((getEnum(e.type) == "PedAtButton")) std::cout << (getEnum(e.type) == "PedAtButton") << " " << t << " " << EventList.size() << std::endl;
+        //std::cout << getEnum(e.type) << " " << t << " " << EventList.size() << std::endl;
+
         if (e.type == Event::eventType::PedArrival){
             if (numPeds < N) createPedestrian(UniformFiles);
         }
+
         else if (e.type == Event::eventType::PedAtButton){
+
             //calculates whether or not they will press the button
             if (pedestrianAtButton(false, false, e.id)){
                 buttonIsPressed = true;
             }
             trafficSignal.PedestriansAtButton.push_back(Pedestrian::getPedestrianByID(e.id));
         }
+
         else if (e.type == Event::eventType::YellowExpires){
             trafficSignal.ChangeLight();
             trafficSignal.ChangeCrossSignal();
@@ -68,11 +73,12 @@ int main() {
             Event greenLight = Event(Event::eventType::RedExpires, t+trafficSignal.redTime);
             EventList.push(greenLight);
             //Sends any pedestrians that can cross
-            std::cout << t << " " << trafficSignal.PedestriansAtButton.size() << " YELLOW EXPIRED\n";
+            //std::cout << t << " " << trafficSignal.PedestriansAtButton.size() << " YELLOW EXPIRED\n";
             processNewEvents(trafficSignal.sendPedestrians(t, nextRedExpiration));
         }
+
         else if (e.type == Event::eventType::RedExpires){
-            std::cout << t << " " << trafficSignal.PedestriansAtButton.size() << " RED EXPIRED\n";
+            //std::cout << t << " " << trafficSignal.PedestriansAtButton.size() << " RED EXPIRED\n";
 
             buttonIsPressed = false;
             pedestrianAtButton(false, true, -1);
@@ -82,7 +88,7 @@ int main() {
             EventList.push(greenExpiration);
         }
         else if (e.type == Event::eventType::GreenExpires){
-            std::cout << t << " " << trafficSignal.PedestriansAtButton.size() << " GREEN EXPIRED\n";
+            //std::cout << t << " " << trafficSignal.PedestriansAtButton.size() << " GREEN EXPIRED\n";
 
             trafficSignal.greenExpired = true;
             if (buttonIsPressed) {
@@ -102,6 +108,7 @@ int main() {
         else if (e.type == Event::eventType::PedExit){
             numExit += 1;
             Pedestrian::allPedestrians.at(e.id-1).exited = true;
+            std::cout << t-Pedestrian::allPedestrians.at(e.id-1).timeNoDelay << " ID: " << Pedestrian::allPedestrians.at(e.id-1).id << "\n";
             averageDelayPedestrian += (t - Pedestrian::allPedestrians.at(e.id-1).timeNoDelay);
         }
     }
@@ -114,10 +121,10 @@ Pedestrian createPedestrian(FileController files){
     Pedestrian ped = Pedestrian(pedID, t+random.Exponential(6), random.Uniform(2.6, 4.1));
     Pedestrian::allPedestrians.push_back(ped);
     Event pedEvent = Event(Event::eventType::PedArrival, ped.time, ped.id);
-
     EventList.push(pedEvent);
     pedID++;
     numPeds++;
+    //std::cout << "CREAtion time: " << t << " BEST exit time: " << ped.velocity << " ID: " << ped.id << "\n";
     scheduleAtButton(ped);
     return ped;
 }
