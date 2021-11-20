@@ -5,7 +5,6 @@
 #ifndef CROSSWALKSIM_SIMULATION_H
 #define CROSSWALKSIM_SIMULATION_H
 
-#include "Welford.cpp"
 class Simulation {
 
 };

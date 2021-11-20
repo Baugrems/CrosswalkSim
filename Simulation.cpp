@@ -11,13 +11,12 @@
 #include "RandomFunctions.h"
 #include "Pedestrian.h"
 #include "TrafficSignal.h"
+#include "Welford.h"
 using namespace std;
 
-//TODO DELETE DEBUG FUNCTIONS
-string getEnum(Event::eventType);
 
-
-Pedestrian createPedestrian(FileController);
+vector<float> runSim(int, string, string, string);
+Pedestrian createPedestrian();
 void scheduleAtButton(Pedestrian);
 bool pedestrianAtButton(bool, bool, int);
 void processNewEvents(std::vector<Event>);
@@ -32,38 +31,40 @@ double blockLength = 330;
 double streetLength = 46;
 bool buttonIsPressed = false;
 double nextRedExpiration = 0;
-RandomFunctions random = RandomFunctions();
+RandomFunctions randomFunctions = RandomFunctions("", "", "");
 TrafficSignal trafficSignal = TrafficSignal();
-double averageDelayPedestrian = 0;
-int main() {
+Welford welfordPedestrians = Welford();
+
+int main(int argc, char *argv[]) {
+    std::vector<float> output = runSim(atoi(argv[1]), argv[2], argv[3], argv[4]);
+    std::cout << "OUTPUT " << output.at(0) << " " << output.at(1) << std::endl;
+    return 0;
+}
 
 
-    const int N = 350;
-    srand(6);
-
-    FileController UniformFiles("", "", "");
-    createPedestrian(UniformFiles);
+std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string BUTTON_RANDOM){
+    randomFunctions = RandomFunctions(AUTO_RANDOM, PED_RANDOM, BUTTON_RANDOM);
+    createPedestrian();
     Event firstSignalEvent = Event(Event::eventType::GreenExpires, t+trafficSignal.greenTime);
     EventList.push(firstSignalEvent);
-
-    //while (numExit != Pedestrian::allPedestrians.size() || Pedestrian::allPedestrians.size() < N){
+    double averageDelayPedestrian = 0;
     while (EventList.size() > 0){
         Event e = EventList.top();
         EventList.pop();
         t = e.activationTime;
-        //std::cout << getEnum(e.type) << " " << t << " " << EventList.size() << std::endl;
-
         if (e.type == Event::eventType::PedArrival){
-            if (numPeds < N) createPedestrian(UniformFiles);
+            if (numPeds < N) createPedestrian();
         }
 
         else if (e.type == Event::eventType::PedAtButton){
-
             //calculates whether or not they will press the button
             if (pedestrianAtButton(false, false, e.id)){
                 buttonIsPressed = true;
             }
             trafficSignal.PedestriansAtButton.push_back(Pedestrian::getPedestrianByID(e.id));
+            if(trafficSignal.pedestrianSignal == TrafficSignal::Signal::WALK){
+                processNewEvents(trafficSignal.sendPedestrians(t, nextRedExpiration));
+            }
         }
 
         else if (e.type == Event::eventType::YellowExpires){
@@ -73,12 +74,10 @@ int main() {
             Event greenLight = Event(Event::eventType::RedExpires, t+trafficSignal.redTime);
             EventList.push(greenLight);
             //Sends any pedestrians that can cross
-            //std::cout << t << " " << trafficSignal.PedestriansAtButton.size() << " YELLOW EXPIRED\n";
             processNewEvents(trafficSignal.sendPedestrians(t, nextRedExpiration));
         }
 
         else if (e.type == Event::eventType::RedExpires){
-            //std::cout << t << " " << trafficSignal.PedestriansAtButton.size() << " RED EXPIRED\n";
 
             buttonIsPressed = false;
             pedestrianAtButton(false, true, -1);
@@ -88,7 +87,6 @@ int main() {
             EventList.push(greenExpiration);
         }
         else if (e.type == Event::eventType::GreenExpires){
-            //std::cout << t << " " << trafficSignal.PedestriansAtButton.size() << " GREEN EXPIRED\n";
 
             trafficSignal.greenExpired = true;
             if (buttonIsPressed) {
@@ -98,6 +96,7 @@ int main() {
             }
         }
         else if (e.type == Event::eventType::PedImpatient){
+
             if(Pedestrian::allPedestrians.at(e.id-1).exited){
                 continue;
             }
@@ -108,23 +107,23 @@ int main() {
         else if (e.type == Event::eventType::PedExit){
             numExit += 1;
             Pedestrian::allPedestrians.at(e.id-1).exited = true;
-            std::cout << t-Pedestrian::allPedestrians.at(e.id-1).timeNoDelay << " ID: " << Pedestrian::allPedestrians.at(e.id-1).id << "\n";
-            averageDelayPedestrian += (t - Pedestrian::allPedestrians.at(e.id-1).timeNoDelay);
+            welfordPedestrians.step(t - Pedestrian::allPedestrians.at(e.id-1).timeNoDelay);
         }
     }
-    std::cout << averageDelayPedestrian/N;
-    return 0;
+    std::vector<float> results;
+    results.push_back(welfordPedestrians.avg);
+    results.push_back(welfordPedestrians.v);
+    return results;
 }
 
-Pedestrian createPedestrian(FileController files){
-    //TODO change random to files
-    Pedestrian ped = Pedestrian(pedID, t+random.Exponential(6), random.Uniform(2.6, 4.1));
+Pedestrian createPedestrian(){
+    //TODO change randomFunctions to files
+    Pedestrian ped = Pedestrian(pedID, t+randomFunctions.ExponentialPed(6), randomFunctions.UniformPed(2.6, 4.1));
     Pedestrian::allPedestrians.push_back(ped);
     Event pedEvent = Event(Event::eventType::PedArrival, ped.time, ped.id);
     EventList.push(pedEvent);
     pedID++;
     numPeds++;
-    //std::cout << "CREAtion time: " << t << " BEST exit time: " << ped.velocity << " ID: " << ped.id << "\n";
     scheduleAtButton(ped);
     return ped;
 }
@@ -141,7 +140,7 @@ bool pedestrianAtButton(bool impatientPress, bool redExpire, int id){
     }
     else if(redExpire){
         for (int i = 0; i < PedsAtButton.size(); ++i) {
-            if (random.Uniform(0, 16) < 15){
+            if (randomFunctions.UniformButton(0, 16) < 15){
                 buttonIsPressed = true;
             }
         }
@@ -152,12 +151,12 @@ bool pedestrianAtButton(bool impatientPress, bool redExpire, int id){
 
         if (PedsAtButton.empty()){
             //TODO MAKE THE UNIFORM BUTTON FILE
-            if (random.Uniform(0, 16) < 15){
+            if (randomFunctions.UniformButton(0, 16) < 15){
                 buttonIsPressed = true;
             }
         }
         else{
-            if (random.Uniform(0, PedsAtButton.size() + 1) < 1.0/(PedsAtButton.size() + 1) ){
+            if (randomFunctions.UniformButton(0, PedsAtButton.size() + 1) < 1.0/(PedsAtButton.size() + 1) ){
                 buttonIsPressed = true;
             }
         }
@@ -169,30 +168,8 @@ bool pedestrianAtButton(bool impatientPress, bool redExpire, int id){
     return buttonIsPressed;
 }
 
-void processNewEvents(std::vector<Event> events){
+void processNewEvents(std::vector<Event> events) {
     for (int i = 0; i < events.size(); ++i) {
         EventList.push(events.at(i));
     }
-}
-
-string getEnum(Event::eventType event){
-    switch (event){
-        case Event::eventType::PedArrival:
-            return "PedArrival";
-        case Event::eventType::PedAtButton:
-            return "PedAtButton";
-        case Event::eventType::PedImpatient:
-            return "PedImpatient";
-        case Event::eventType::GreenExpires:
-            return "GreenExpires";
-        case Event::eventType::YellowExpires:
-            return "YellowExpires";
-        case Event::eventType::RedExpires:
-            return "RedExpires";
-        case Event::eventType::AutoExit:
-            return "AutoExit";
-        case Event::eventType::PedExit:
-            return "PedExit";
-    }
-    return "";
 }
