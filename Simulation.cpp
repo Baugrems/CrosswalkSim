@@ -85,7 +85,7 @@ std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string B
             //Sends any pedestrians that can cross
             processNewEvents(trafficSignal.sendPedestrians(t, nextRedExpiration));
         } else if (e.type == Event::eventType::RedExpires) {
-            startAutos();
+
             lastLightChange = t;
             buttonIsPressed = false;
             pedestrianAtButton(false, true, -1);
@@ -93,6 +93,7 @@ std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string B
             trafficSignal.ChangeCrossSignal();
             Event greenExpiration = Event(Event::eventType::GreenExpires, t + trafficSignal.greenTime);
             EventList.push(greenExpiration);
+            startAutos();
         } else if (e.type == Event::eventType::GreenExpires) {
             trafficSignal.greenExpired = true;
             if (buttonIsPressed) {
@@ -124,12 +125,14 @@ std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string B
                 Event autoExit = Event(Event::eventType::AutoExit, car.time + car.optimalTime(), car.id);
                 EventList.push(autoExit);
             } else if (trafficSignal.stopLightColor == TrafficSignal::Light::RED) {
+                car.redLightLeft = lastLightChange + 18 - t;
                 Automobile::waitingAutos.push_back(car);
             } else if (trafficSignal.stopLightColor == TrafficSignal::Light::YELLOW) {
                 if (lastLightChange + 8 > car.ct2) {
                     Event autoExit = Event(Event::eventType::AutoExit, car.time + car.optimalTime(), car.id);
                     EventList.push(autoExit);
                 } else {
+                    car.redLightLeft = lastLightChange + 18 - t + 8;
                     Automobile::waitingAutos.push_back(car);
                 }
             }
@@ -156,7 +159,7 @@ void startAutos() {
         double t1 = ((7*330)+(6*46)-(2*accD)) / car.velocity;
         double t2 = 2*accT;
         double t3 = car.time + ((3.5*330) + ((3*46)-12-accD)/car.velocity) + accT;
-        t3 = t-t3;
+        t3 = car.redLightLeft - t3;
         double exitTime = t1 + t2 + t3;
         Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
         EventList.push(exitEvent);

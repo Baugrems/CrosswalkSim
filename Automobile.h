@@ -21,5 +21,6 @@ public:
     double optimalTime();
     double ct1;
     double ct2;
+    double redLightLeft;
 };
 #endif //CROSSWALKSIM_AUTOMOBILE_H
