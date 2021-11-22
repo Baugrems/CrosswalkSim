@@ -184,7 +184,7 @@ Pedestrian createPedestrian(){
 
 Automobile createAuto() {
     //TODO also use random file instead of this
-    speed = randomFunctions.UniformAuto(25,35);
+    double speed = randomFunctions.UniformAuto(25,35);
     speed *= 1.467;
     Automobile car = Automobile(carID, t+randomFunctions.ExponentialAuto(8), speed);
     Automobile::allAutomobiles.push_back(car);
