@@ -160,7 +160,7 @@ void startAutos() {
         double t2 = 2*accT;
         double t3 = car.time + ((3.5*330) + ((3*46)-12-accD)/car.velocity) + accT;
         t3 = car.redLightLeft - t3;
-        double exitTime = t1 + t2 + t3;
+        double exitTime = t + accT + travelT;
         Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
         EventList.push(exitEvent);
     }
