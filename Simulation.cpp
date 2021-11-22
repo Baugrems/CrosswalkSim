@@ -195,7 +195,9 @@ Pedestrian createPedestrian(){
 
 Automobile createAuto() {
     //TODO also use random file instead of this
-    Automobile car = Automobile(carID, t+randomFunctions.ExponentialPed(8), randomFunctions.UniformPed(36.6667,51.3333));
+    speed = randomFunctions.UniformAuto(25,35);
+    speed *= 1.467;
+    Automobile car = Automobile(carID, t+randomFunctions.ExponentialAuto(8), speed);
     Automobile::allAutomobiles.push_back(car);
     Event autoEvent = Event(Event::eventType::AutoArrival, car.time, car.id);
     EventList.push(autoEvent);

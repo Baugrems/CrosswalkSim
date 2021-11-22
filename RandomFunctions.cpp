@@ -16,6 +16,22 @@ RandomFunctions::RandomFunctions(std::string pedFile, std::string autoFile, std:
     buttonStream.open(this->buttonFile);
 }
 
+double RandomFunctions::ExponentialAuto(double mu) {
+    float nextAutoUniform;
+    if(!autoStream.eof()){
+        autoStream >> nextAutoUniform;
+    }
+    return -1 * mu * log(1 - nextAutoUniform);
+}
+
+double RandomFunctions::UniformAuto(double a, double b) {
+    float nextAutoUniform;
+    if(!autoStream.eof()){
+        autoStream >> nextAutoUniform;
+    }
+    return a + (b - a) * nextAutoUniform;
+}
+
 
 double RandomFunctions::ExponentialPed(double mu) {
     float nextPedUniform;
