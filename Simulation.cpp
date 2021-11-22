@@ -121,12 +121,15 @@ std::vector<float> runSim(int N){
         } else if (e.type == Event::eventType::AutoCross) {
             Automobile car = Automobile::allAutomobiles.at(e.id);
             if (trafficSignal.stopLightColor == TrafficSignal::Light::GREEN) {
+                cout << "GREEN LIGHT: " << car.id << endl;
                 Event autoExit = Event(Event::eventType::AutoExit, car.time + car.optimalTime(), car.id);
                 EventList.push(autoExit);
             } else if (trafficSignal.stopLightColor == TrafficSignal::Light::RED) {
+                cout << "RED LIGHT: " << car.id << endl;
                 car.redLightLeft = lastLightChange + 18 - t;
                 Automobile::waitingAutos.push_back(car);
             } else if (trafficSignal.stopLightColor == TrafficSignal::Light::YELLOW) {
+                cout << "YELLOW LIGHT: " << car.id << endl;
                 if (lastLightChange + 8 > car.ct2) {
                     Event autoExit = Event(Event::eventType::AutoExit, car.time + car.optimalTime(), car.id);
                     EventList.push(autoExit);
@@ -138,6 +141,7 @@ std::vector<float> runSim(int N){
         } else if (e.type == Event::eventType::AutoExit) {
             numCarExit++;
             Automobile car = Automobile::allAutomobiles.at(e.id);
+            cout << car.id << " " << car.time << " " << e.activationTime << " " << car.optimalTime() + car.time << endl;
             welfordAutos.step(t-(car.time + car.optimalTime()));
         }
     }
@@ -155,7 +159,7 @@ void startAutos() {
         double accT = car.velocity/10;
         double travelD = 1305-accD;
         double travelT = travelD/car.velocity;
-        double exitTime = t + (2*accT) + travelT;
+        double exitTime = t + accT + travelT;
         Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
         EventList.push(exitEvent);
     }
@@ -163,7 +167,6 @@ void startAutos() {
 }
 
 Pedestrian createPedestrian(){
-    //TODO change randomFunctions to files
     Pedestrian ped = Pedestrian(pedID, t+randomFunctions.ExponentialPed(6), randomFunctions.UniformPed(2.6, 4.1));
     Pedestrian::allPedestrians.push_back(ped);
     Event pedEvent = Event(Event::eventType::PedArrival, ped.time, ped.id);
