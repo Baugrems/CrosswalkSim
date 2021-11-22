@@ -156,7 +156,7 @@ void startAutos() {
         double t1 = ((7*330)+(6*46)-(2*accD)) / car.velocity;
         double t2 = 2*accT;
         double t3 = car.time + ((3.5*330) + ((3*46)-12-accD)/car.velocity) + accT;
-        t3 = (t - lastLightChange) - t3;
+        t3 = t-t3;
         double exitTime = t1 + t2 + t3;
         Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
         EventList.push(exitEvent);
