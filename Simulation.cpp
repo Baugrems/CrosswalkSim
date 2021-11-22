@@ -160,10 +160,10 @@ std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string B
             welfordAutos.step(t - (car.time + car.optimalTime()));
         }
     std::vector<float> results;
-    results.push_back(welfordPedestrians.avg);
-    results.push_back(welfordPedestrians.v);
+
     results.push_back(welfordAutos.avg);
     results.push_back(welfordAutos.v);
+    results.push_back(welfordPedestrians.avg);
     return results;
 }
 
