@@ -17,7 +17,6 @@ public:
     const double ACCELERATION = 10.0;
     const int LENGTH = 9;
     static std::vector<Automobile> allAutomobiles;
-    static std::vector<Automobile> activeAutomobiles;
     static std::vector<Automobile> waitingAutos;
     double optimalTime();
     double ct1;

@@ -5,7 +5,7 @@
 #include "Automobile.h"
 
 std::vector<Automobile> Automobile::allAutomobiles;
-std::vector<Automobile> Automobile::activeAutomobiles;
+
 std::vector<Automobile> Automobile::waitingAutos;
 ;
 Automobile::Automobile(int id, double velocity, double time) {

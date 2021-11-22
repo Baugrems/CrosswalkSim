@@ -94,21 +94,12 @@ std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string B
             EventList.push(greenExpiration);
             startAutos();
         } else if (e.type == Event::eventType::GreenExpires) {
-            // TODO check for active autos to be delayed or not
             trafficSignal.greenExpired = true;
             if (buttonIsPressed) {
                 lastLightChange = t;
                 trafficSignal.ChangeLight();
                 Event redLight = Event(Event::eventType::YellowExpires, t + trafficSignal.yellowTime);
                 EventList.push(redLight);
-                for (auto car: Automobile::activeAutomobiles) {
-                    if (t + 8 > car.ct2) {
-                        //exit as normal, we escaped!
-                    } else {
-                        // car is delayed
-                        Automobile::waitingAutos.push_back(car);
-                    }
-                }
             }
         } else if (e.type == Event::eventType::PedImpatient) {
 
@@ -192,7 +183,7 @@ Automobile createAuto() {
     // figure out time to crosswalk start and end
     // distance is 1281 to first edge, 1305 to last edge
     double crossT1 = t + (1281/car.velocity);
-    double crossT2 = t + (1305/car.velocity);
+    double crossT2 = t + (1314/car.velocity);
     car.ct1 = crossT1;
     car.ct2 = crossT2;
     carID++;
