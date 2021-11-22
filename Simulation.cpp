@@ -153,8 +153,10 @@ void startAutos() {
         double accT = car.velocity/10;
         double travelD = 1305-accD;
         double travelT = travelD/car.velocity;
-
-        double exitTime = t + accT + travelT;
+        double t1 = ((7*330)+(6*46)-(2*accD)) / car.velocity;
+        double t2 = 2*accT;
+        double t3 = car.time + ((3.5*330) + ((3*46)-12-accD)/car.velocity) + accT;
+        double exitTime = t1 + t2 + t3;
         Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
         EventList.push(exitEvent);
     }
@@ -182,7 +184,7 @@ Automobile createAuto() {
     EventList.push(autoEvent);
     // figure out time to crosswalk start and end
     // distance is 1281 to first edge, 1305 to last edge
-    double crossT1 = t + ((1281-((car.velocity*car.velocity)/20))/car.velocity);
+    double crossT1 = t + (1281/car.velocity);
     double crossT2 = t + (1314/car.velocity);
     car.ct1 = crossT1;
     car.ct2 = crossT2;
