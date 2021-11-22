@@ -126,7 +126,7 @@ std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string B
             } else if (trafficSignal.stopLightColor == TrafficSignal::Light::RED) {
                 Automobile::waitingAutos.push_back(car);
             } else if (trafficSignal.stopLightColor == TrafficSignal::Light::YELLOW) {
-                if (t + (8 - lastLightChange) > car.ct2) {
+                if (lastLightChange + 8 > car.ct2) {
                     Event autoExit = Event(Event::eventType::AutoExit, t + car.optimalTime(), car.id);
                     EventList.push(autoExit);
                 } else {
