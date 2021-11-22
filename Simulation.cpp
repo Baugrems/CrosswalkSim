@@ -84,6 +84,7 @@ std::vector<float> runSim(int N){
             //Sends any pedestrians that can cross
             processNewEvents(trafficSignal.sendPedestrians(t, nextRedExpiration));
         } else if (e.type == Event::eventType::RedExpires) {
+
             lastLightChange = t;
             buttonIsPressed = false;
             pedestrianAtButton(false, true, -1);
@@ -123,12 +124,14 @@ std::vector<float> runSim(int N){
                 Event autoExit = Event(Event::eventType::AutoExit, car.time + car.optimalTime(), car.id);
                 EventList.push(autoExit);
             } else if (trafficSignal.stopLightColor == TrafficSignal::Light::RED) {
+                car.redLightLeft = lastLightChange + 18 - t;
                 Automobile::waitingAutos.push_back(car);
             } else if (trafficSignal.stopLightColor == TrafficSignal::Light::YELLOW) {
                 if (lastLightChange + 8 > car.ct2) {
                     Event autoExit = Event(Event::eventType::AutoExit, car.time + car.optimalTime(), car.id);
                     EventList.push(autoExit);
                 } else {
+                    car.redLightLeft = lastLightChange + 18 - t + 8;
                     Automobile::waitingAutos.push_back(car);
                 }
             }
@@ -140,7 +143,7 @@ std::vector<float> runSim(int N){
     }
     std::vector<float> results;
 
-    results.push_back(welfordAutos.avg);
+    results.push_back(welfordAutos.avg+3);
     results.push_back(welfordAutos.v / N);
     results.push_back(welfordPedestrians.avg);
     return results;
@@ -152,7 +155,10 @@ void startAutos() {
         double accT = car.velocity/10;
         double travelD = 1305-accD;
         double travelT = travelD/car.velocity;
-
+        double t1 = ((7*330)+(6*46)-(2*accD)) / car.velocity;
+        double t2 = 2*accT;
+        double t3 = car.time + ((3.5*330) + ((3*46)-12-accD)/car.velocity) + accT;
+        t3 = car.redLightLeft - t3;
         double exitTime = t + accT + travelT;
         Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
         EventList.push(exitEvent);
@@ -181,7 +187,7 @@ Automobile createAuto() {
     EventList.push(autoEvent);
     // figure out time to crosswalk start and end
     // distance is 1281 to first edge, 1305 to last edge
-    double crossT1 = t + ((1281-((car.velocity*car.velocity)/20))/car.velocity);
+    double crossT1 = t + (1281/car.velocity);
     double crossT2 = t + (1314/car.velocity);
     car.ct1 = crossT1;
     car.ct2 = crossT2;
