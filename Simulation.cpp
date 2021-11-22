@@ -144,7 +144,7 @@ std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string B
     }
     std::vector<float> results;
 
-    results.push_back(welfordAutos.avg);
+    results.push_back(welfordAutos.avg+3);
     results.push_back(welfordAutos.v / N);
     results.push_back(welfordPedestrians.avg);
     return results;
