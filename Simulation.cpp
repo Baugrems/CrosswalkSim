@@ -48,7 +48,7 @@ Welford welfordAutos = Welford();
 
 int main(int argc, char *argv[]) {
     std::vector<float> output = runSim(atoi(argv[1]), argv[2], argv[3], argv[4]);
-    std::cout << "OUTPUT " << output.at(0) << " " << output.at(1) << std::endl;
+    std::cout << "OUTPUT " << output.at(0) << " " << output.at(1)  << " " << output.at(2) << std::endl;
     return 0;
 }
 
@@ -151,7 +151,7 @@ std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string B
     std::vector<float> results;
 
     results.push_back(welfordAutos.avg);
-    results.push_back(welfordAutos.v/N);
+    results.push_back(welfordAutos.v / N);
     results.push_back(welfordPedestrians.avg);
     return results;
 }
