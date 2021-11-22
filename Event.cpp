@@ -14,3 +14,4 @@ Event::Event(Event::eventType type, double activationTime, int id) {
     this->activationTime = activationTime;
     this->id = id;
 }
+

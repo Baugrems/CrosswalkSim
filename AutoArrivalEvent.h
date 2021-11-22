@@ -7,8 +7,11 @@
 
 
 #include "Event.h"
+#include "Automobile.h"
 
 class AutoArrivalEvent: public Event {
+public:
+    Automobile car;
 };
 
 

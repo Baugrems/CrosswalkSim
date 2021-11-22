@@ -12,6 +12,8 @@
 #include "Pedestrian.h"
 #include "TrafficSignal.h"
 #include "Welford.h"
+#include "Automobile.h"
+
 using namespace std;
 
 
@@ -20,20 +22,29 @@ Pedestrian createPedestrian();
 void scheduleAtButton(Pedestrian);
 bool pedestrianAtButton(bool, bool, int);
 void processNewEvents(std::vector<Event>);
+void startAutos();
+
+Automobile createAuto();
 
 priority_queue<Event> EventList;
 queue<Pedestrian> PedsAtButton;
 int pedID = 1;
 int numPeds = 0;
+int carID = 1;
+int numCars = 0;
 int numExit = 0;
+int numCarExit = 0;
 double t = 0;
 double blockLength = 330;
 double streetLength = 46;
+double crossWidth = 24;
 bool buttonIsPressed = false;
 double nextRedExpiration = 0;
+double lastLightChange;
 RandomFunctions randomFunctions = RandomFunctions("", "", "");
 TrafficSignal trafficSignal = TrafficSignal();
 Welford welfordPedestrians = Welford();
+Welford welfordAutos = Welford();
 
 int main(int argc, char *argv[]) {
     std::vector<float> output = runSim(atoi(argv[1]), argv[2], argv[3], argv[4]);
@@ -45,6 +56,7 @@ int main(int argc, char *argv[]) {
 std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string BUTTON_RANDOM){
     randomFunctions = RandomFunctions(AUTO_RANDOM, PED_RANDOM, BUTTON_RANDOM);
     createPedestrian();
+    createAuto();
     Event firstSignalEvent = Event(Event::eventType::GreenExpires, t+trafficSignal.greenTime);
     EventList.push(firstSignalEvent);
     double averageDelayPedestrian = 0;
@@ -69,6 +81,7 @@ std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string B
 
         else if (e.type == Event::eventType::YellowExpires){
             trafficSignal.ChangeLight();
+            lastLightChange = t;
             trafficSignal.ChangeCrossSignal();
             nextRedExpiration = t+trafficSignal.redTime;
             Event greenLight = Event(Event::eventType::RedExpires, t+trafficSignal.redTime);
@@ -78,21 +91,25 @@ std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string B
         }
 
         else if (e.type == Event::eventType::RedExpires){
-
+            lastLightChange = t;
             buttonIsPressed = false;
             pedestrianAtButton(false, true, -1);
             trafficSignal.ChangeLight();
             trafficSignal.ChangeCrossSignal();
             Event greenExpiration = Event(Event::eventType::GreenExpires, t+trafficSignal.greenTime);
             EventList.push(greenExpiration);
+            startAutos();
         }
         else if (e.type == Event::eventType::GreenExpires){
-
+            // TODO check for active autos to be delayed or not
             trafficSignal.greenExpired = true;
             if (buttonIsPressed) {
+                lastLightChange = t;
                 trafficSignal.ChangeLight();
                 Event redLight = Event(Event::eventType::YellowExpires, t+trafficSignal.yellowTime);
                 EventList.push(redLight);
+
+
             }
         }
         else if (e.type == Event::eventType::PedImpatient){
@@ -109,11 +126,53 @@ std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string B
             Pedestrian::allPedestrians.at(e.id-1).exited = true;
             welfordPedestrians.step(t - Pedestrian::allPedestrians.at(e.id-1).timeNoDelay);
         }
+        else if (e.type == Event::eventType::AutoArrival) {
+            if (numCars < N) createAuto();
+            Automobile car = Automobile::allAutomobiles.at(e.id);
+            if (trafficSignal.stopLightColor == TrafficSignal::Light::YELLOW) {
+                double crossT = 33 / car.velocity;
+                double sigRemain = 8 - (t - lastLightChange);
+                if(sigRemain > crossT) {
+                    double exitTime = t + car.optimalTime();
+                    Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
+                    EventList.push(exitEvent);
+                } else {
+                    Automobile::waitingAutos.push_back(car);
+                }
+            } else if (trafficSignal.stopLightColor == TrafficSignal::Light::RED) {
+                Automobile::waitingAutos.push_back(car);
+            } else {
+                double exitTime = t + car.optimalTime();
+                Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
+                EventList.push(exitEvent);
+            }
+        }
+        else if (e.type == Event::eventType::AutoExit) {
+            numCarExit++;
+            Automobile car = Automobile::allAutomobiles.at(e.id);
+            welfordAutos.step(t - car.optimalTime());
+        }
     }
     std::vector<float> results;
     results.push_back(welfordPedestrians.avg);
     results.push_back(welfordPedestrians.v);
+    results.push_back(welfordAutos.avg);
+    results.push_back(welfordAutos.v);
     return results;
+}
+
+void startAutos() {
+    for (auto car: Automobile::waitingAutos) {
+        double accD = (car.velocity * car.velocity) / 20;
+        double accT = car.velocity/10;
+        double travelD = 1293 - accD;
+        double travelT = travelD/car.velocity;
+
+        double exitTime = t + accT + travelT;
+        Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
+        EventList.push(exitEvent);
+    }
+    Automobile::waitingAutos.clear();
 }
 
 Pedestrian createPedestrian(){
@@ -126,6 +185,17 @@ Pedestrian createPedestrian(){
     numPeds++;
     scheduleAtButton(ped);
     return ped;
+}
+
+Automobile createAuto() {
+    //TODO also use random file instead of this
+    Automobile car = Automobile(carID, t+randomFunctions.ExponentialPed(8), randomFunctions.UniformPed(36.6667,51.3333));
+    Automobile::allAutomobiles.push_back(car);
+    Event autoEvent = Event(Event::eventType::AutoArrival, car.time, car.id);
+    EventList.push(autoEvent);
+    carID++;
+    numCars++;
+    return car;
 }
 
 void scheduleAtButton(Pedestrian ped){
