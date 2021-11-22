@@ -20,5 +20,7 @@ public:
     static std::vector<Automobile> activeAutomobiles;
     static std::vector<Automobile> waitingAutos;
     double optimalTime();
+    double ct1;
+    double ct2;
 };
 #endif //CROSSWALKSIM_AUTOMOBILE_H

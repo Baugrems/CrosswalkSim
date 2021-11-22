@@ -108,8 +108,13 @@ std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string B
                 trafficSignal.ChangeLight();
                 Event redLight = Event(Event::eventType::YellowExpires, t+trafficSignal.yellowTime);
                 EventList.push(redLight);
-
-
+		for(auto car: Automobile::activeAutomobiles) {
+			if (t + 8 > car.ct2) {
+				//exit as normal, we escaped!
+			} else {
+				// car is delayed
+				Automobile::waitingAutos.append(car);
+			}
             }
         }
         else if (e.type == Event::eventType::PedImpatient){
@@ -127,25 +132,10 @@ std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string B
             welfordPedestrians.step(t - Pedestrian::allPedestrians.at(e.id-1).timeNoDelay);
         }
         else if (e.type == Event::eventType::AutoArrival) {
-            if (numCars < N) createAuto();
-            Automobile car = Automobile::allAutomobiles.at(e.id);
-            if (trafficSignal.stopLightColor == TrafficSignal::Light::YELLOW) {
-                double crossT = 33 / car.velocity;
-                double sigRemain = 8 - (t - lastLightChange);
-                if(sigRemain > crossT) {
-                    double exitTime = t + car.optimalTime();
-                    Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
-                    EventList.push(exitEvent);
-                } else {
-                    Automobile::waitingAutos.push_back(car);
-                }
-            } else if (trafficSignal.stopLightColor == TrafficSignal::Light::RED) {
-                Automobile::waitingAutos.push_back(car);
-            } else {
-                double exitTime = t + car.optimalTime();
-                Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
-                EventList.push(exitEvent);
-            }
+            if (numCars < N) {
+		    car = createAuto();
+		    Event crossEvent = Event(Event::eventType::AutoCross, car.ct1);
+	    }
         }
         else if (e.type == Event::eventType::AutoExit) {
             numCarExit++;
@@ -193,6 +183,12 @@ Automobile createAuto() {
     Automobile::allAutomobiles.push_back(car);
     Event autoEvent = Event(Event::eventType::AutoArrival, car.time, car.id);
     EventList.push(autoEvent);
+    // figure out time to crosswalk start and end
+    // distance is 1281 to first edge, 1305 to last edge
+    double crossT1 = t + (1281/car.velocity);
+    double crossT2 = t + (1305/car.velocity);
+    car.ct1 = crossT1;
+    car.ct2 = crossT2;
     carID++;
     numCars++;
     return car;
