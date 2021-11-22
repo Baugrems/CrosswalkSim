@@ -17,7 +17,7 @@
 using namespace std;
 
 
-vector<float> runSim(int, string, string, string);
+vector<float> runSim(int);
 Pedestrian createPedestrian();
 void scheduleAtButton(Pedestrian);
 bool pedestrianAtButton(bool, bool, int);
@@ -41,20 +41,19 @@ double crossWidth = 24;
 bool buttonIsPressed = false;
 double nextRedExpiration = 0;
 double lastLightChange;
-RandomFunctions randomFunctions = RandomFunctions("", "", "");
 TrafficSignal trafficSignal = TrafficSignal();
 Welford welfordPedestrians = Welford();
 Welford welfordAutos = Welford();
-
+RandomFunctions randomFunctions = RandomFunctions();
 int main(int argc, char *argv[]) {
-    std::vector<float> output = runSim(atoi(argv[1]), argv[2], argv[3], argv[4]);
+    randomFunctions = RandomFunctions(argv[2], argv[3], argv[4]);
+    std::vector<float> output = runSim(atoi(argv[1]));
     std::cout << "OUTPUT " << output.at(0) << " " << output.at(1)  << " " << output.at(2) << std::endl;
     return 0;
 }
 
 
-std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string BUTTON_RANDOM){
-    randomFunctions = RandomFunctions(AUTO_RANDOM, PED_RANDOM, BUTTON_RANDOM);
+std::vector<float> runSim(int N){
     createPedestrian();
     createAuto();
     Event firstSignalEvent = Event(Event::eventType::GreenExpires, t+trafficSignal.greenTime);

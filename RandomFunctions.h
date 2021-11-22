@@ -8,6 +8,7 @@
 
 class RandomFunctions{
 public:
+    RandomFunctions();
     RandomFunctions(std::string, std::string, std::string);
     double ExponentialPed(double mu);
     double UniformPed(double a, double b);
