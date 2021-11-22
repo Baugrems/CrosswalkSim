@@ -155,7 +155,7 @@ void startAutos() {
         double accT = car.velocity/10;
         double travelD = 1305-accD;
         double travelT = travelD/car.velocity;
-        double exitTime = t + accT + travelT;
+        double exitTime = t + (2*accT) + travelT;
         Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
         EventList.push(exitEvent);
     }
