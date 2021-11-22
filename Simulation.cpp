@@ -176,7 +176,7 @@ Pedestrian createPedestrian(){
 Automobile createAuto() {
     double speed = randomFunctions.UniformAuto(25,35);
     speed *= 1.467;
-    Automobile car = Automobile(carID, t+randomFunctions.ExponentialAuto(8), speed);
+    Automobile car = Automobile(carID, speed, t+randomFunctions.ExponentialAuto(8));
     Automobile::allAutomobiles.push_back(car);
     Event autoEvent = Event(Event::eventType::AutoArrival, car.time, car.id);
     EventList.push(autoEvent);
