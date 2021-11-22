@@ -30,7 +30,7 @@ priority_queue<Event> EventList;
 queue<Pedestrian> PedsAtButton;
 int pedID = 1;
 int numPeds = 0;
-int carID = 1;
+int carID = 0;
 int numCars = 0;
 int numExit = 0;
 int numCarExit = 0;
@@ -183,7 +183,6 @@ Pedestrian createPedestrian(){
 }
 
 Automobile createAuto() {
-    //TODO also use random file instead of this
     double speed = randomFunctions.UniformAuto(25,35);
     speed *= 1.467;
     Automobile car = Automobile(carID, t+randomFunctions.ExponentialAuto(8), speed);
@@ -223,7 +222,6 @@ bool pedestrianAtButton(bool impatientPress, bool redExpire, int id){
         EventList.push(impatient);
 
         if (PedsAtButton.empty()){
-            //TODO MAKE THE UNIFORM BUTTON FILE
             if (randomFunctions.UniformButton(0, 16) < 15){
                 buttonIsPressed = true;
             }
