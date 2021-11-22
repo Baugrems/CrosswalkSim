@@ -121,13 +121,13 @@ std::vector<float> runSim(int N, string AUTO_RANDOM, string PED_RANDOM, string B
         } else if (e.type == Event::eventType::AutoCross) {
             Automobile car = Automobile::allAutomobiles.at(e.id);
             if (trafficSignal.stopLightColor == TrafficSignal::Light::GREEN) {
-                Event autoExit = Event(Event::eventType::AutoExit, t + car.optimalTime(), car.id);
+                Event autoExit = Event(Event::eventType::AutoExit, car.time + car.optimalTime(), car.id);
                 EventList.push(autoExit);
             } else if (trafficSignal.stopLightColor == TrafficSignal::Light::RED) {
                 Automobile::waitingAutos.push_back(car);
             } else if (trafficSignal.stopLightColor == TrafficSignal::Light::YELLOW) {
                 if (lastLightChange + 8 > car.ct2) {
-                    Event autoExit = Event(Event::eventType::AutoExit, t + car.optimalTime(), car.id);
+                    Event autoExit = Event(Event::eventType::AutoExit, car.time + car.optimalTime(), car.id);
                     EventList.push(autoExit);
                 } else {
                     Automobile::waitingAutos.push_back(car);
@@ -182,7 +182,7 @@ Automobile createAuto() {
     EventList.push(autoEvent);
     // figure out time to crosswalk start and end
     // distance is 1281 to first edge, 1305 to last edge
-    double crossT1 = t + (1281/car.velocity);
+    double crossT1 = t + ((1281-((car.velocity*car.velocity)/20))/car.velocity);
     double crossT2 = t + (1314/car.velocity);
     car.ct1 = crossT1;
     car.ct2 = crossT2;
