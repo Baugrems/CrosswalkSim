@@ -177,7 +177,7 @@ void startAutos() {
         double travelT = travelD/car.velocity;
         double timeDelayed = t - (car.ct1 + accT);
         // std::cout << car.id << " " << t << " - (" << car.ct1 << " + " << accT << ")" << std::endl;
-        // std::cout << car.id << " delayed by " << timeDelayed << std::endl;
+        std::cout << car.id << " delayed by " << timeDelayed << std::endl;
         double exitTime = car.time + (2 * accT) + (2 * travelT) + timeDelayed;
         Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
         EventList.push(exitEvent);
@@ -198,11 +198,11 @@ Pedestrian createPedestrian(){
 
 Automobile createAuto() {
     double speed = randomFunctions.UniformAuto(25,35);
-    speed *= 1.467;
+    speed *= 1.466667;
     double accD = (speed * speed) / 20;
     double accT = speed/10;
-    double crossT1 = t + ((1281-accD)/speed);
-    double crossT2 = t + (1314/speed);
+    double crossT1 = t + ((((3.5*330)+(3*46)-12)-accD)/speed);
+    double crossT2 = t + (((3.5*330)+(3*46)+24+9)/speed);
     Automobile car = Automobile(carID, speed, t+randomFunctions.ExponentialAuto(8), crossT1, crossT2);
     Automobile::allAutomobiles.push_back(car);
     Event autoEvent = Event(Event::eventType::AutoArrival, car.time, car.id);
