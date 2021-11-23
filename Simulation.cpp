@@ -173,7 +173,7 @@ void startAutos() {
         //  << car.id << " delayed." << std::endl;
         double accD = (car.velocity * car.velocity) / 20;
         double accT = car.velocity/10;
-        double travelD = 1323-accD;
+        double travelD = ((3.5*330)+(3*46)+24)-accD+9;
         double travelT = travelD/car.velocity;
         double timeDelayed = t - (car.ct1 + accT);
         // std::cout << car.id << " " << t << " - (" << car.ct1 << " + " << accT << ")" << std::endl;
