@@ -41,6 +41,7 @@ double crossWidth = 24;
 bool buttonIsPressed = false;
 double nextRedExpiration = 0;
 double lastLightChange;
+double lastGreenLight = 99999;
 TrafficSignal trafficSignal = TrafficSignal();
 Welford welfordPedestrians = Welford();
 Welford welfordAutos = Welford();
@@ -55,7 +56,9 @@ int main(int argc, char *argv[]) {
 
 std::vector<float> runSim(int N){
     createPedestrian();
-    createAuto();
+    Automobile c = createAuto();
+    Event crossEvent = Event(Event::eventType::AutoCross, c.ct1, c.id);
+    EventList.push(crossEvent);
     Event firstSignalEvent = Event(Event::eventType::GreenExpires, t+trafficSignal.greenTime);
     EventList.push(firstSignalEvent);
     double averageDelayPedestrian = 0;
@@ -75,6 +78,7 @@ std::vector<float> runSim(int N){
                 processNewEvents(trafficSignal.sendPedestrians(t, nextRedExpiration));
             }
         } else if (e.type == Event::eventType::YellowExpires) {
+            std::cout << "LIGHT TURNED RED" << std::endl;
             trafficSignal.ChangeLight();
             lastLightChange = t;
             trafficSignal.ChangeCrossSignal();
@@ -84,7 +88,7 @@ std::vector<float> runSim(int N){
             //Sends any pedestrians that can cross
             processNewEvents(trafficSignal.sendPedestrians(t, nextRedExpiration));
         } else if (e.type == Event::eventType::RedExpires) {
-
+            std::cout << "LIGHT TURNED GREEN" << std::endl;
             lastLightChange = t;
             buttonIsPressed = false;
             pedestrianAtButton(false, true, -1);
@@ -95,7 +99,9 @@ std::vector<float> runSim(int N){
             startAutos();
         } else if (e.type == Event::eventType::GreenExpires) {
             trafficSignal.greenExpired = true;
+            lastGreenLight = t;
             if (buttonIsPressed) {
+                std::cout << "LIGHT TURNED YELLOW AT " << t << std::endl;
                 lastLightChange = t;
                 trafficSignal.ChangeLight();
                 Event redLight = Event(Event::eventType::YellowExpires, t + trafficSignal.yellowTime);
@@ -121,19 +127,25 @@ std::vector<float> runSim(int N){
         } else if (e.type == Event::eventType::AutoCross) {
             Automobile car = Automobile::allAutomobiles.at(e.id);
             if (trafficSignal.stopLightColor == TrafficSignal::Light::GREEN) {
-                cout << "GREEN LIGHT: " << car.id << endl;
-                Event autoExit = Event(Event::eventType::AutoExit, car.time + car.optimalTime(), car.id);
-                EventList.push(autoExit);
+                if(buttonIsPressed && lastGreenLight + 43 > car.ct2) {
+                    Event autoExit = Event(Event::eventType::AutoExit, car.time + car.optimalTime(), car.id);
+                    EventList.push(autoExit);
+                    std::cout << car.id << " made it through a green." << std::endl;
+                } else {
+                    std::cout << car.id << " caught at end of green." << std::endl;
+                    Automobile::waitingAutos.push_back(car);
+                }
             } else if (trafficSignal.stopLightColor == TrafficSignal::Light::RED) {
-                cout << "RED LIGHT: " << car.id << endl;
+                std::cout << car.id << " at red light." << std::endl;
                 car.redLightLeft = lastLightChange + 18 - t;
                 Automobile::waitingAutos.push_back(car);
             } else if (trafficSignal.stopLightColor == TrafficSignal::Light::YELLOW) {
-                cout << "YELLOW LIGHT: " << car.id << endl;
                 if (lastLightChange + 8 > car.ct2) {
+                    std::cout << car.id << " made it through a yellow." << std::endl;
                     Event autoExit = Event(Event::eventType::AutoExit, car.time + car.optimalTime(), car.id);
                     EventList.push(autoExit);
                 } else {
+                    std::cout << car.id << " caught by yellow." << std::endl;
                     car.redLightLeft = lastLightChange + 18 - t + 8;
                     Automobile::waitingAutos.push_back(car);
                 }
@@ -141,7 +153,6 @@ std::vector<float> runSim(int N){
         } else if (e.type == Event::eventType::AutoExit) {
             numCarExit++;
             Automobile car = Automobile::allAutomobiles.at(e.id);
-            cout << car.id << " " << car.time << " " << e.activationTime << " " << car.optimalTime() + car.time << endl;
             welfordAutos.step(t-(car.time + car.optimalTime()));
         }
     }
@@ -155,6 +166,7 @@ std::vector<float> runSim(int N){
 
 void startAutos() {
     for (auto car: Automobile::waitingAutos) {
+        std::cout << car.id << " delayed." << std::endl;
         double accD = (car.velocity * car.velocity) / 20;
         double accT = car.velocity/10;
         double travelD = 1305-accD;
@@ -192,6 +204,7 @@ Automobile createAuto() {
     double crossT2 = t + (1314/car.velocity);
     car.ct1 = crossT1;
     car.ct2 = crossT2;
+    std::cout << "New Car " << car.id << ": " << car.ct1 << " - " << car.ct2 << std::endl;
     carID++;
     numCars++;
     return car;
