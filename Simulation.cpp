@@ -157,7 +157,7 @@ std::vector<float> runSim(int N){
         } else if (e.type == Event::eventType::AutoExit) {
             numCarExit++;
             Automobile car = Automobile::allAutomobiles.at(e.id);
-            welfordAutos.step(3.4+t-(car.time + car.optimalTime()));
+            welfordAutos.step(t-(car.time + car.optimalTime()));
         }
     }
     std::vector<float> results;
@@ -175,7 +175,8 @@ void startAutos() {
         double accT = car.velocity/10;
         double travelD = 1305-accD;
         double travelT = travelD/car.velocity;
-        double exitTime = t + accT + travelT;
+        double timeDelayed = t - (car.ct1 + accT);
+        double exitTime = car.time + (2 * accT) + (2 * travelT) + timeDelayed;
         Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
         EventList.push(exitEvent);
     }
