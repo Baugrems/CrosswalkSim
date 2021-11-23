@@ -7,7 +7,7 @@
 
 class Event {
 public:
-    enum class eventType {AutoArrival, AutoCross, PedArrival, PedAtButton, PedImpatient, GreenExpires, YellowExpires, RedExpires, AutoExit, PedExit};
+    enum class eventType {AutoArrival, AutoCross, AutoCrossTwo, PedArrival, PedAtButton, PedImpatient, GreenExpires, YellowExpires, RedExpires, AutoExit, PedExit};
     double activationTime;
     eventType type;
     int id;
