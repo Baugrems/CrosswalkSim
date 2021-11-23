@@ -157,7 +157,7 @@ std::vector<float> runSim(int N){
         } else if (e.type == Event::eventType::AutoExit) {
             numCarExit++;
             Automobile car = Automobile::allAutomobiles.at(e.id);
-            welfordAutos.step(t-(car.time + car.optimalTime()));
+            welfordAutos.step(3+t-(car.time + car.optimalTime()));
         }
     }
     std::vector<float> results;
