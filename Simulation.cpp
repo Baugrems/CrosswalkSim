@@ -49,7 +49,7 @@ RandomFunctions randomFunctions = RandomFunctions();
 int main(int argc, char *argv[]) {
     randomFunctions = RandomFunctions(argv[2], argv[3], argv[4]);
     std::vector<float> output = runSim(atoi(argv[1]));
-    //  << "OUTPUT " << output.at(0) << " " << output.at(1)  << " " << output.at(2) << std::endl;
+    std::cout << "OUTPUT " << output.at(0) << " " << output.at(1)  << " " << output.at(2) << std::endl;
     return 0;
 }
 
