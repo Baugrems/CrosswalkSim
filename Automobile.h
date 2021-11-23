@@ -9,7 +9,7 @@
 
 class Automobile{
 public:
-    Automobile(int id, double velocity, double time);
+    Automobile(int id, double velocity, double time, double cross1, double cross2);
     int length;
     int id;
     double velocity;

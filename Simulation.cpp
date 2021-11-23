@@ -78,7 +78,7 @@ std::vector<float> runSim(int N){
                 processNewEvents(trafficSignal.sendPedestrians(t, nextRedExpiration));
             }
         } else if (e.type == Event::eventType::YellowExpires) {
-            //  << "LIGHT TURNED RED" << std::endl;
+            // std::cout << "LIGHT TURNED RED" << std::endl;
             trafficSignal.ChangeLight();
             lastLightChange = t;
             trafficSignal.ChangeCrossSignal();
@@ -88,7 +88,7 @@ std::vector<float> runSim(int N){
             //Sends any pedestrians that can cross
             processNewEvents(trafficSignal.sendPedestrians(t, nextRedExpiration));
         } else if (e.type == Event::eventType::RedExpires) {
-            //  << "LIGHT TURNED GREEN" << std::endl;
+            // std::cout << "LIGHT TURNED GREEN" << std::endl;
             lastLightChange = t;
             buttonIsPressed = false;
             pedestrianAtButton(false, true, -1);
@@ -101,7 +101,7 @@ std::vector<float> runSim(int N){
             trafficSignal.greenExpired = true;
             lastGreenLight = t;
             if (buttonIsPressed) {
-                //  << "LIGHT TURNED YELLOW AT " << t << std::endl;
+                // std::cout << "LIGHT TURNED YELLOW AT " << t << std::endl;
                 lastLightChange = t;
                 trafficSignal.ChangeLight();
                 Event redLight = Event(Event::eventType::YellowExpires, t + trafficSignal.yellowTime);
@@ -176,8 +176,8 @@ void startAutos() {
         double travelD = 1305-accD;
         double travelT = travelD/car.velocity;
         double timeDelayed = t - (car.ct1 + accT);
-        std::cout << car.id << " " << t << " - (" << car.ct1 << " + " << accT << ")" << std::endl;
-        std::cout << car.id << " delayed by " << timeDelayed << std::endl;
+        // std::cout << car.id << " " << t << " - (" << car.ct1 << " + " << accT << ")" << std::endl;
+        // std::cout << car.id << " delayed by " << timeDelayed << std::endl;
         double exitTime = car.time + (2 * accT) + (2 * travelT) + timeDelayed;
         Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
         EventList.push(exitEvent);
@@ -199,19 +199,18 @@ Pedestrian createPedestrian(){
 Automobile createAuto() {
     double speed = randomFunctions.UniformAuto(25,35);
     speed *= 1.467;
-    Automobile car = Automobile(carID, speed, t+randomFunctions.ExponentialAuto(8));
+    double accD = (speed * speed) / 20;
+    double accT = speed/10;
+    double crossT1 = t + ((1281-accD)/speed);
+    double crossT2 = t + (1314/speed);
+    Automobile car = Automobile(carID, speed, t+randomFunctions.ExponentialAuto(8), crossT1, crossT2);
     Automobile::allAutomobiles.push_back(car);
     Event autoEvent = Event(Event::eventType::AutoArrival, car.time, car.id);
     EventList.push(autoEvent);
     // figure out time to crosswalk start and end
     // distance is 1281 to first edge, 1305 to last edge
-    double accD = (car.velocity * car.velocity) / 20;
-    double accT = car.velocity/10;
-    double crossT1 = t + ((1281-accD)/car.velocity);
-    double crossT2 = t + (1314/car.velocity);
-    car.ct1 = crossT1;
-    car.ct2 = crossT2;
-    //  << "New Car " << car.id << ": " << car.ct1 << " - " << car.ct2 << std::endl;
+    
+    // // std::cout << "New Car " << car.id << ": " << car.ct1 << " - " << car.ct2 << std::endl;
     carID++;
     numCars++;
     return car;
