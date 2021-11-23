@@ -128,7 +128,7 @@ std::vector<float> runSim(int N){
             Automobile car = Automobile::allAutomobiles.at(e.id);
             if (trafficSignal.stopLightColor == TrafficSignal::Light::GREEN) {
                 Event ct2Event = Event(Event::eventType::AutoCrossTwo, car.ct2, car.id);
-                }
+                EventList.push(ct2Event);
             } else if (trafficSignal.stopLightColor == TrafficSignal::Light::RED) {
                 std::cout << car.id << " at red light." << std::endl;
                 car.redLightLeft = lastLightChange + 18 - t;
