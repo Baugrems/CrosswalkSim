@@ -176,6 +176,7 @@ void startAutos() {
         double travelD = 1305-accD;
         double travelT = travelD/car.velocity;
         double timeDelayed = t - (car.ct1 + accT);
+        std::cout << car.id << " delayed by " << timeDelayed << std::endl;
         double exitTime = car.time + (2 * accT) + (2 * travelT) + timeDelayed;
         Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
         EventList.push(exitEvent);
