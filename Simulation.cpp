@@ -125,38 +125,41 @@ std::vector<float> runSim(int N){
             if (numCars < N) {
                 Automobile car = createAuto();
 		std::cout << "DEBUG " << t << " AUTO ARRIVAL " << car.id << std::endl;
-                Event crossEvent = Event(Event::eventType::AutoCross, car.ct1, car.id);
+                Event crossEvent = Event(Event::eventType::AutoCross, car.ct2, car.id);
                 EventList.push(crossEvent);
             }
         } else if (e.type == Event::eventType::AutoCross) {
             Automobile car = Automobile::allAutomobiles.at(e.id);
             if (trafficSignal.stopLightColor == TrafficSignal::Light::GREEN) {
-                Event ct2Event = Event(Event::eventType::AutoCrossTwo, car.ct2, car.id);
-                EventList.push(ct2Event);
-            } else if (trafficSignal.stopLightColor == TrafficSignal::Light::RED) {
-                //  << car.id << " at red light." << std::endl;
-                car.redLightLeft = lastLightChange + 18 - t;
-                Automobile::waitingAutos.push_back(car);
-            } else if (trafficSignal.stopLightColor == TrafficSignal::Light::YELLOW) {
-                if (lastLightChange + 8 > car.ct2) {
-                    //  << car.id << " made it through a yellow." << std::endl;
-                    Event autoExit = Event(Event::eventType::AutoExit, car.time + car.optimalTime(), car.id);
-                    EventList.push(autoExit);
+                if (lastLightChange < car.ct1) {
+                    Event exitEvent = Event(Event::eventType::AutoExit, car.optimalTime() + car.time, car.id);
+                    EventList.push(exitEvent);
                 } else {
-                    //  << car.id << " caught by yellow." << std::endl;
-                    car.redLightLeft = lastLightChange + 18 - t + 8;
-                    Automobile::waitingAutos.push_back(car);
+                    double accD = (car.velocity * car.velocity) / 20;
+                    double accT = car.velocity/10;
+                    double travelD = ((3.5*330)+(3*46)+24)-accD;
+                    double travelT = travelD/car.velocity;
+                    double timeDelayed = 0;
+                    std::cout << car.id << " " << t << " - (" << car.ct1 << " + " << accT << ")" << std::endl;
+                    std::cout << car.id << " delayed by " << timeDelayed << std::endl;
+                    double exitTime = car.time + (2 * accT) + (2 * travelT) + timeDelayed;
+                    Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
+                    EventList.push(exitEvent);
                 }
-            }
-        } else if (e.type == Event::eventType::AutoCrossTwo) {
-            Automobile car = Automobile::allAutomobiles.at(e.id);
-            if (trafficSignal.stopLightColor == TrafficSignal::Light::RED) {
-                Automobile::waitingAutos.push_back(car);
-                //  << car.id << " caught by end of green." << std::endl;
-            } else {
-                Event autoExit = Event(Event::eventType::AutoExit, car.time + car.optimalTime(), car.id);
-                EventList.push(autoExit);
-                //  << car.id << " made it through a green." << std::endl;
+            } else if (trafficSignal.stopLightColor == TrafficSignal::Light::RED) {
+                double accD = (car.velocity * car.velocity) / 20;
+                double accT = car.velocity/10;
+                double travelD = ((3.5*330)+(3*46)+24)-accD+9;
+                double travelT = travelD/car.velocity;
+                double timeDelayed = (lastLightChange + 18) - (car.ct1 + accT);
+                // std::cout << car.id << " " << t << " - (" << car.ct1 << " + " << accT << ")" << std::endl;
+                //std::cout << car.id << " delayed by " << timeDelayed << std::endl;
+                double exitTime = car.time + (2 * accT) + (2 * travelT) + timeDelayed;
+                Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
+                EventList.push(exitEvent);
+            } else if (trafficSignal.stopLightColor == TrafficSignal::Light::YELLOW) {
+                Event exitEvent = Event(Event::eventType::AutoExit, car.optimalTime() + car.time, car.id);
+                EventList.push(exitEvent);
             }
         } else if (e.type == Event::eventType::AutoExit) {
             numCarExit++;
