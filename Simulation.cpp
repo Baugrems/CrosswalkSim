@@ -210,7 +210,7 @@ Automobile createAuto() {
     speed *= 1.466667;
     double accD = (speed * speed) / 20;
     double accT = speed/10;
-    double crossT1 = t + ((((3.5*330)+(3*46)-12)/speed);
+    double crossT1 = t + ((((3.5*330)+(3*46)-12)/speed));
     double crossT2 = t + (((3.5*330)+(3*46)+12+9)/speed);
     Automobile car = Automobile(carID, speed, t+randomFunctions.ExponentialAuto(7.5), crossT1, crossT2);
     Automobile::allAutomobiles.push_back(car);
