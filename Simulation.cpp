@@ -137,15 +137,12 @@ std::vector<float> runSim(int N){
                     EventList.push(exitEvent);
                 } else {
                     double accD = (car.velocity * car.velocity) / 20;
-
-                    double travelD = ((3.5*330)+(3*46)+24)-accD;
-                    double travelD2 = ((3.5*330)+(3*46)+24)-accD + 9;
+                    double travelD = ((3.5*330)+(3*46))-accD;
                     double travelT = travelD/car.velocity;
-                    double travelT2 = travelD2/car.velocity;
                     double timeDelayed = 0;
 //                    std::cout << car.id << " " << t << " - (" << car.ct1 << " + " << accT << ")" << std::endl;
 //                    std::cout << car.id << " delayed by " << timeDelayed << std::endl;
-                    double exitTime = car.time + (2 * accT) + travelT + travelT2 + timeDelayed;
+                    double exitTime = car.time + (2 * accT) + (2 * travelT) + timeDelayed;
                     Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
                     EventList.push(exitEvent);
                 }
@@ -184,7 +181,7 @@ void startAutos() {
         //  << car.id << " delayed." << std::endl;
         double accD = (car.velocity * car.velocity) / 20;
         double accT = car.velocity/10;
-        double travelD = ((3.5*330)+(3*46)+24)-accD+9;
+        double travelD = ((3.5*330)+(3*46)+24)-accD;
         double travelT = travelD/car.velocity;
         double timeDelayed = t - (car.ct1 + accT);
         // std::cout << car.id << " " << t << " - (" << car.ct1 << " + " << accT << ")" << std::endl;
