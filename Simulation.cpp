@@ -118,7 +118,7 @@ std::vector<float> runSim(int N){
             }
         } else if (e.type == Event::eventType::PedExit) {
             numExit += 1;
-	    std::cout << "DEBUG " << t << " PED EXIT " << e.id << std::endl; 
+	    std::cout << "DEBUG " << t << " PED EXIT " << e.id << " WITH DELAY OF " << (t-Pedestrian::allPedestrians.at(e.id-1).timeNoDelay) << std::endl; 
             Pedestrian::allPedestrians.at(e.id - 1).exited = true;
             welfordPedestrians.step(t - Pedestrian::allPedestrians.at(e.id - 1).timeNoDelay);
         } else if (e.type == Event::eventType::AutoArrival) {
@@ -230,7 +230,7 @@ bool pedestrianAtButton(bool impatientPress, bool redExpire, int id){
         buttonIsPressed = true;
     }
     else if(redExpire){
-        for (int i = 0; i < PedsAtButton.size(); ++i) {
+        for (int i = 0; i < trafficSignal.PedestriansAtButton.size(); ++i) {
             if (randomFunctions.UniformButton(0, 16) < 15){
                 buttonIsPressed = true;
             }
@@ -240,13 +240,13 @@ bool pedestrianAtButton(bool impatientPress, bool redExpire, int id){
         Event impatient = Event(Event::eventType::PedImpatient, t+60, id);
         EventList.push(impatient);
 
-        if (PedsAtButton.empty()){
+        if (trafficSignal.PedestriansAtButton.empty()){
             if (randomFunctions.UniformButton(0, 16) < 15){
                 buttonIsPressed = true;
             }
         }
         else{
-            if (randomFunctions.UniformButton(0, PedsAtButton.size() + 1) < 1.0/(PedsAtButton.size() + 1) ){
+            if (randomFunctions.UniformButton(0, trafficSignal.PedestriansAtButton.size() + 1) < 1.0/(trafficSignal.PedestriansAtButton.size() + 1) ){
                 buttonIsPressed = true;
             }
         }
