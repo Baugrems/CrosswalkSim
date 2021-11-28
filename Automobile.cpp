@@ -17,6 +17,6 @@ Automobile::Automobile(int id, double velocity, double time, double cross1, doub
 }
 
 double Automobile::optimalTime() {
-    return ((7*330)+(6*46)+9) / this->velocity;
+    return ((7*330)+(6*46)) / this->velocity;
 }
 
