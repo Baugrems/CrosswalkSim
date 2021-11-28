@@ -233,7 +233,7 @@ bool pedestrianAtButton(bool impatientPress, bool redExpire, int id){
         buttonIsPressed = true;
     }
     else if(redExpire){
-        for (int i = 0; i < PedsAtButton.size(); ++i) {
+        for (int i = 0; i < trafficSignal.PedestriansAtButton.size(); ++i) {
             if (randomFunctions.UniformButton(0, 16) < 15){
                 buttonIsPressed = true;
             }
@@ -243,13 +243,13 @@ bool pedestrianAtButton(bool impatientPress, bool redExpire, int id){
         Event impatient = Event(Event::eventType::PedImpatient, t+60, id);
         EventList.push(impatient);
 
-        if (PedsAtButton.empty()){
+        if (trafficSignal.PedestriansAtButton.empty()){
             if (randomFunctions.UniformButton(0, 16) < 15){
                 buttonIsPressed = true;
             }
         }
         else{
-            if (randomFunctions.UniformButton(0, PedsAtButton.size() + 1) < 1.0/(PedsAtButton.size() + 1) ){
+            if (randomFunctions.UniformButton(0, 1) < 1.0/(trafficSignal.PedestriansAtButton.size() + 1) ){
                 buttonIsPressed = true;
             }
         }
