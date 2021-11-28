@@ -79,6 +79,7 @@ std::vector<float> runSim(int N){
             if (trafficSignal.pedestrianSignal == TrafficSignal::Signal::WALK) {
                 processNewEvents(trafficSignal.sendPedestrians(t, nextRedExpiration));
             }
+ 	    std::cout << "DEBUG " << t << " PED AT BUTTON " << e.id << std::endl;
         } else if (e.type == Event::eventType::YellowExpires) {
             std::cout << "LIGHT TURNED RED AT " << t << std::endl;
             trafficSignal.ChangeLight();
@@ -110,7 +111,6 @@ std::vector<float> runSim(int N){
                 EventList.push(redLight);
             }
         } else if (e.type == Event::eventType::PedImpatient) {
-
             if (Pedestrian::allPedestrians.at(e.id - 1).exited) {
                 continue;
             } else {
@@ -161,7 +161,7 @@ std::vector<float> runSim(int N){
         } else if (e.type == Event::eventType::AutoExit) {
             numCarExit++;
 	    Automobile car = Automobile::allAutomobiles.at(e.id);
-	    std::cout << "DEBUG " << t << " AUTO EXIT " << e.id << " WITH A DELAY OF " << t-car.time-car.optimalTime() << std::endl; 
+	    //std::cout << "DEBUG " << t << " AUTO EXIT " << e.id << " WITH A DELAY OF " << t-car.time-car.optimalTime() << std::endl; 
             welfordAutos.step(t-(car.time + car.optimalTime()));
         }
     }
