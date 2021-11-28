@@ -68,7 +68,7 @@ std::vector<float> runSim(int N){
         t = e.activationTime;
         if (e.type == Event::eventType::PedArrival) {
             if (numPeds < N) createPedestrian();
-	    std::cout << "DEBUG " << t << " PEDESTRIAN ARRIVAL " << e.id << std::endl;
+	    //std::cout << "DEBUG " << t << " PEDESTRIAN ARRIVAL " << e.id << std::endl;
         } else if (e.type == Event::eventType::PedAtButton) {
             //calculates whether or not they will press the button
             if (pedestrianAtButton(false, false, e.id)) {
@@ -91,10 +91,11 @@ std::vector<float> runSim(int N){
             //Sends any pedestrians that can cross
             processNewEvents(trafficSignal.sendPedestrians(t, nextRedExpiration));
         } else if (e.type == Event::eventType::RedExpires) {
-            std::cout << "LIGHT TURNED GREEN AT " << t << std::endl;
+      //      std::cout << "LIGHT TURNED GREEN AT " << t << std::endl;
             lastLightChange = t;
             buttonIsPressed = false;
-            pedestrianAtButton(false, true, -1);
+            std::cout << "THE BUTTON IS NOW NOT PRESSED> IREPEAT IT IS NOT PRESSED" << std::endl;
+	    pedestrianAtButton(false, true, -1);
             trafficSignal.ChangeLight();
             trafficSignal.ChangeCrossSignal();
             Event greenExpiration = Event(Event::eventType::GreenExpires, t + trafficSignal.greenTime);
@@ -104,7 +105,7 @@ std::vector<float> runSim(int N){
             trafficSignal.greenExpired = true;
             lastGreenLight = t;
             if (buttonIsPressed) {
-                std::cout << "LIGHT TURNED YELLOW AT " << t << std::endl;
+               // std::cout << "LIGHT TURNED YELLOW AT " << t << std::endl;
                 lastLightChange = t;
                 trafficSignal.ChangeLight();
                 Event redLight = Event(Event::eventType::YellowExpires, t + trafficSignal.yellowTime);
@@ -118,13 +119,13 @@ std::vector<float> runSim(int N){
             }
         } else if (e.type == Event::eventType::PedExit) {
             numExit += 1;
-	    std::cout << "DEBUG " << t << " PED EXIT " << e.id << " WITH DELAY OF " << (t-Pedestrian::allPedestrians.at(e.id-1).timeNoDelay) << std::endl; 
+	    //std::cout << "DEBUG " << t << " PED EXIT " << e.id << " WITH DELAY OF " << (t-Pedestrian::allPedestrians.at(e.id-1).timeNoDelay) << std::endl; 
             Pedestrian::allPedestrians.at(e.id - 1).exited = true;
             welfordPedestrians.step(t - Pedestrian::allPedestrians.at(e.id - 1).timeNoDelay);
         } else if (e.type == Event::eventType::AutoArrival) {
             if (numCars < N) {
                 Automobile car = createAuto();
-		std::cout << "DEBUG " << t << " AUTO ARRIVAL " << car.id << std::endl;
+		//std::cout << "DEBUG " << t << " AUTO ARRIVAL " << car.id << std::endl;
                 Event crossEvent = Event(Event::eventType::AutoCross, car.ct1, car.id);
                 EventList.push(crossEvent);
             }
@@ -226,6 +227,7 @@ void scheduleAtButton(Pedestrian ped){
 
 bool pedestrianAtButton(bool impatientPress, bool redExpire, int id){
     bool previousStateOfButton = buttonIsPressed;
+    std::cout << impatientPress << " " << redExpire << "Checking if button will be pressed. Current state is " << buttonIsPressed << std::endl;
     if (impatientPress){
         buttonIsPressed = true;
     }
@@ -235,20 +237,26 @@ bool pedestrianAtButton(bool impatientPress, bool redExpire, int id){
                 buttonIsPressed = true;
             }
         }
+	std::cout << buttonIsPressed << " uniform0,16) after expure" << std::endl;
     }
     else{
+	std::cout << trafficSignal.PedestriansAtButton.size() << std::endl;
         Event impatient = Event(Event::eventType::PedImpatient, t+60, id);
         EventList.push(impatient);
 
         if (trafficSignal.PedestriansAtButton.empty()){
             if (randomFunctions.UniformButton(0, 16) < 15){
                 buttonIsPressed = true;
-            }
+	    }	
+	    std::cout << buttonIsPressed << " uniform(0,16) when queue is empty" << std::endl;
+            
         }
         else{
-            if (randomFunctions.UniformButton(0, trafficSignal.PedestriansAtButton.size() + 1) < 1.0/(trafficSignal.PedestriansAtButton.size() + 1) ){
+            if (randomFunctions.UniformButton(0, 1) < 1.0/(trafficSignal.PedestriansAtButton.size() + 1) ){
                 buttonIsPressed = true;
-            }
+	    }	
+	    std::cout << buttonIsPressed << " After showing up with many people there" << std::endl;
+            
         }
     }
     if (trafficSignal.greenExpired && buttonIsPressed && !previousStateOfButton){
