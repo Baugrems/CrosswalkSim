@@ -68,7 +68,7 @@ std::vector<float> runSim(int N){
         t = e.activationTime;
         if (e.type == Event::eventType::PedArrival) {
             if (numPeds < N) createPedestrian();
-	    std::cout << "DEBUG " << t << " PEDESTRIAN ARRIVAL " << e.id << std::endl;
+	   // std::cout << "DEBUG " << t << " PEDESTRIAN ARRIVAL " << e.id << std::endl;
         } else if (e.type == Event::eventType::PedAtButton) {
             //calculates whether or not they will press the button
             if (pedestrianAtButton(false, false, e.id)) {
@@ -122,7 +122,7 @@ std::vector<float> runSim(int N){
         } else if (e.type == Event::eventType::AutoArrival) {
             if (numCars < N) {
                 Automobile car = createAuto();
-		std::cout << "DEBUG " << t << " AUTO ARRIVAL " << car.id << std::endl;
+		//std::cout << "DEBUG " << t << " AUTO ARRIVAL " << car.id << std::endl;
                 Event crossEvent = Event(Event::eventType::AutoCross, car.ct1, car.id);
                 EventList.push(crossEvent);
             }
@@ -179,7 +179,7 @@ void startAutos() {
         double travelT = travelD/car.velocity;
         double timeDelayed = t - (car.ct1 + accT);
         // std::cout << car.id << " " << t << " - (" << car.ct1 << " + " << accT << ")" << std::endl;
-        std::cout << car.id << " delayed by " << timeDelayed << std::endl;
+        //std::cout << car.id << " delayed by " << timeDelayed << std::endl;
         double exitTime = car.time + (2 * accT) + (2 * travelT) + timeDelayed;
         Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
         EventList.push(exitEvent);
