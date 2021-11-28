@@ -188,7 +188,7 @@ void startAutos() {
 }
 
 Pedestrian createPedestrian(){
-    Pedestrian ped = Pedestrian(pedID, t+randomFunctions.ExponentialPed(6), randomFunctions.UniformPed(2.6, 4.1));
+    Pedestrian ped = Pedestrian(pedID, t+randomFunctions.ExponentialPed(10), randomFunctions.UniformPed(2.6, 4.1));
     Pedestrian::allPedestrians.push_back(ped);
     Event pedEvent = Event(Event::eventType::PedArrival, ped.time, ped.id);
     EventList.push(pedEvent);
