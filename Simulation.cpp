@@ -68,6 +68,7 @@ std::vector<float> runSim(int N){
         t = e.activationTime;
         if (e.type == Event::eventType::PedArrival) {
             if (numPeds < N) createPedestrian();
+	    std::cout << "DEBUG " << t << " PEDESTRIAN ARRIVAL " << e.id << std::endl;
         } else if (e.type == Event::eventType::PedAtButton) {
             //calculates whether or not they will press the button
             if (pedestrianAtButton(false, false, e.id)) {
@@ -121,6 +122,7 @@ std::vector<float> runSim(int N){
         } else if (e.type == Event::eventType::AutoArrival) {
             if (numCars < N) {
                 Automobile car = createAuto();
+		std::cout << "DEBUG " << t << " AUTO ARRIVAL " << car.id << std::endl;
                 Event crossEvent = Event(Event::eventType::AutoCross, car.ct1, car.id);
                 EventList.push(crossEvent);
             }
@@ -203,14 +205,12 @@ Automobile createAuto() {
     double accT = speed/10;
     double crossT1 = t + ((((3.5*330)+(3*46)-12)-accD)/speed);
     double crossT2 = t + (((3.5*330)+(3*46)+24+9)/speed);
-    Automobile car = Automobile(carID, speed, t+randomFunctions.ExponentialAuto(8), crossT1, crossT2);
+    Automobile car = Automobile(carID, speed, t+randomFunctions.ExponentialAuto(7.5), crossT1, crossT2);
     Automobile::allAutomobiles.push_back(car);
     Event autoEvent = Event(Event::eventType::AutoArrival, car.time, car.id);
     EventList.push(autoEvent);
     // figure out time to crosswalk start and end
     // distance is 1281 to first edge, 1305 to last edge
-    
-    // // std::cout << "New Car " << car.id << ": " << car.ct1 << " - " << car.ct2 << std::endl;
     carID++;
     numCars++;
     return car;
