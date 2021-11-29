@@ -103,7 +103,7 @@ std::vector<float> runSim(int N){
             trafficSignal.greenExpired = true;
             lastGreenLight = t;
             if (buttonIsPressed) {
-////                std::cout << "LIGHT TURNED YELLOW AT " << t << std::endl;
+//                std::cout << "LIGHT TURNED YELLOW AT " << t << std::endl;
                 lastLightChange = t;
                 trafficSignal.ChangeLight();
                 Event redLight = Event(Event::eventType::YellowExpires, t + trafficSignal.yellowTime);
@@ -141,7 +141,7 @@ std::vector<float> runSim(int N){
                     double travelT = travelD/car.velocity;
 //                    std::cout << car.id << " " << t << " - (" << car.ct1 << " + " << accT << ")" << std::endl;
 //                    std::cout << car.id << " delayed by " << (car.time + (2 * accT) + travelT) - (car.time + car.optimalTime()) << std::endl;
-                    double exitTime = car.time + (2 * accT) + travelT;
+                    double exitTime = car.time + (2 * accT) + travelT + 1;
                     Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
                     EventList.push(exitEvent);
                 }
@@ -153,7 +153,7 @@ std::vector<float> runSim(int N){
                 double timeDelayed = (lastLightChange + 18) - (car.ct1 + accT);
 //                std::cout << car.id << " " << t << " - (" << car.ct1 << " + " << accT << ")" << std::endl;
 //                std::cout << car.id << " delayed by " << timeDelayed << std::endl;
-                double exitTime = car.time + (2 * accT) + (2 * travelT) + timeDelayed;
+                double exitTime = car.time + (2 * accT) + (2 * travelT) + timeDelayed + 1;
                 Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
                 EventList.push(exitEvent);
             } else if (trafficSignal.stopLightColor == TrafficSignal::Light::YELLOW) {
@@ -164,7 +164,7 @@ std::vector<float> runSim(int N){
             numCarExit++;
 	    Automobile car = Automobile::allAutomobiles.at(e.id);
 //	    std::cout << "DEBUG " << t << " AUTO EXIT " << e.id << " WITH A DELAY OF " << t-car.time-car.optimalTime() << std::endl;
-            welfordAutos.step((t+1)-(car.time + car.optimalTime()));
+            welfordAutos.step(t-(car.time + car.optimalTime()));
         }
     }
     std::vector<float> results;
@@ -183,8 +183,8 @@ void startAutos() {
         double travelD = ((3.5*330)+(3*46)+24)-accD;
         double travelT = travelD/car.velocity;
         double timeDelayed = t - (car.ct1 + accT);
-//        // std::cout << car.id << " " << t << " - (" << car.ct1 << " + " << accT << ")" << std::endl;
-//        //std::cout << car.id << " delayed by " << timeDelayed << std::endl;
+//         std::cout << car.id << " " << t << " - (" << car.ct1 << " + " << accT << ")" << std::endl;
+//        std::cout << car.id << " delayed by " << timeDelayed << std::endl;
         double exitTime = car.time + (2 * accT) + (2 * travelT) + timeDelayed;
         Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
         EventList.push(exitEvent);
