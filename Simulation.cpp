@@ -136,12 +136,13 @@ std::vector<float> runSim(int N){
                     Event exitEvent = Event(Event::eventType::AutoExit, car.optimalTime() + car.time, car.id);
                     EventList.push(exitEvent);
                 } else {
+//                    std::cout << car.id << " delayed by nothing at green" << endl;
                     double accD = (car.velocity * car.velocity) / 20;
-                    double travelD = ((7*330)+(6*46))-(2*accD);
+                    double travelD = ((7*330)+(6*46)+24)-(2*accD);
                     double travelT = travelD/car.velocity;
 //                    std::cout << car.id << " " << t << " - (" << car.ct1 << " + " << accT << ")" << std::endl;
 //                    std::cout << car.id << " delayed by " << (car.time + (2 * accT) + travelT) - (car.time + car.optimalTime()) << std::endl;
-                    double exitTime = car.time + (2 * accT) + travelT + 1;
+                    double exitTime = car.time + (2 * accT) + travelT;
                     Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
                     EventList.push(exitEvent);
                 }
@@ -150,10 +151,10 @@ std::vector<float> runSim(int N){
                 double accT = car.velocity/10;
                 double travelD = ((3.5*330)+(3*46)+24)-accD;
                 double travelT = travelD/car.velocity;
-                double timeDelayed = (lastLightChange + 18) - (car.ct1 + accT);
+                double timeDelayed = (lastLightChange + 19) - (car.ct1 + accT);
 //                std::cout << car.id << " " << t << " - (" << car.ct1 << " + " << accT << ")" << std::endl;
 //                std::cout << car.id << " delayed by " << timeDelayed << std::endl;
-                double exitTime = car.time + (2 * accT) + (2 * travelT) + timeDelayed + 1;
+                double exitTime = car.time + (2 * accT) + (2 * travelT) + timeDelayed;
                 Event exitEvent = Event(Event::eventType::AutoExit, exitTime, car.id);
                 EventList.push(exitEvent);
             } else if (trafficSignal.stopLightColor == TrafficSignal::Light::YELLOW) {
